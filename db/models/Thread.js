@@ -6,7 +6,7 @@ class Thread extends bookshelf.Model {
   get hasTimestamps() { return true }
 
   poster() {
-    return this.belongsTo('User', 'user_id')
+    return this.belongsTo('User', 'user_account_id')
   }
 }
 

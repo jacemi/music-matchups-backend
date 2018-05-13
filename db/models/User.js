@@ -1,7 +1,7 @@
 const bookshelf = require('./bookshelf');
 
 class User extends bookshelf.Model {
-    get tableName() { return 'users' }
+    get tableName() { return 'user_account' }
     get hasTimestamps() { return true }
   
     posts() {
