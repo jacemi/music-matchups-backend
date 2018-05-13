@@ -2,11 +2,18 @@ const bookshelf = require('./bookshelf');
 
 
 class Post extends bookshelf.Model {
-  get tableName() { return 'posts' }
+  get tableName() { return 'post' }
   get hasTimestamps() { return true }
 
+
   poster() {
-    return this.belongsTo('User', 'user_id')
+    return this.belongsTo('User', 'user_account_id')
+  }
+  postStatus() {
+    return this.belongsTo('Status', 'status');
+  }
+  parentThread() {
+    return this.belongsTo('Thread', 'thread_id')
   }
 }
 
