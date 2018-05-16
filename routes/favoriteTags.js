@@ -5,7 +5,7 @@ const FavoriteTag = require('../db/models/FavoriteTag.js');
 
 router.route('/')
 .get((req, res) => {
-    return new FavoriteTag
+    return FavoriteTag
     .fetchAll()
     .then(favoriteTag => {
       return res.json(favoriteTag)
@@ -15,9 +15,9 @@ router.route('/')
     });
 })
 .post((req, res) => {
-  const { user_account } = req;
-  let { content } = req.body;
-  return new FavoriteTag({ content, user_account_id: user_account.id })
+  // const { user_account } = req;
+  let { name, similar_tags, user_account_id } = req.body;
+  return new FavoriteTag({ name, similar_tags, user_account_id })
   .save()
   .then(favoriteTag => {
     return res.json(favoriteTag)
@@ -41,9 +41,18 @@ router.route('/:id')
   })
 })
 .put((req, res) => {
-  const { user_account } = req;
-  let { content } = req.body;
-  return new favoriteTag({ content, user_account_id: user_account.id })
+  // const { user_account } = req;
+  const { id } = req.params;
+  let { name, similar_tags, user_account_id } = req.body;
+  return new FavoriteTag()
+  .where({ id })
+  .save({ name, similar_tags, user_account_id }, { method: 'update' })
+  .then(favoriteTag => {
+    return res.json(favoriteTag)
+  })
+  .catch(err => {
+    return res.status(500).json(err);
+  });
 
 })
 .delete((req, res) => {

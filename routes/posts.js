@@ -5,7 +5,7 @@ const Post = require('../db/models/Post.js');
 
 router.route('/')
 .get((req, res) => {
-    return new Post
+    return Post
     .fetchAll({ withRelated: ['childComments'] })
     .then(post => {
       return res.json(post)
@@ -15,9 +15,9 @@ router.route('/')
     });
 })
 .post((req, res) => {
-  const { user_account } = req;
-  let { content } = req.body;
-  return new Post({ content, user_account_id: user_account.id })
+  // const { user_account } = req;
+  let { content, user_account_id } = req.body;
+  return new Post({ content, user_account_id })
   .save()
   .then(post => {
     return res.json(post)
@@ -41,10 +41,17 @@ router.route('/:id')
   })
 })
 .put((req, res) => {
-  const { user_account } = req;
-  let { content } = req.body;
-  return new Post({ content, user_account_id: user_account.id })
-
+  const { id } = req.params;
+  let { content, user_account_id } = req.body;
+  return new Post()
+  .where({ id })
+  .save({ content, user_account_id }, { method: 'update' })
+  .then(post => {
+    return res.json(post)
+  })
+  .catch(err => {
+    return res.status(500).json(err);
+  });
 })
 .delete((req, res) => {
   const { id } = req.params;

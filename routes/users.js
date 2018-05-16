@@ -5,9 +5,10 @@ const User = require('../db/models/User.js');
 
 router.route('/')
 .get((req, res) => {
-    return new User
-    .fetchAll({ withRelated: ['posts', 'comments', 'favoriteArtists'] })
-    .then(users => {
+  console.log('GET IN USERS ROUTE');
+    return User
+    .fetchAll({ withRelated: ['posts', 'comments','favoriteArtists'] })
+    .then(user => {
       return res.json(user)
     })
     .catch(err => {

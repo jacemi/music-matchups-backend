@@ -5,8 +5,8 @@ const Comment = require('../db/models/Comment.js');
 
 router.route('/')
 .get((req, res) => {
-    return new Comment
-    .fetchAll()
+    return Comment
+    .fetchAll({ withRelated: ['parentPost', 'commenter']})
     .then(comment => {
       return res.json(comment)
     })
@@ -15,9 +15,9 @@ router.route('/')
     });
 })
 .post((req, res) => {
-  const { user_account } = req;
-  let { content } = req.body;
-  return new Comment({ content, user_account_id: user_account.id })
+  // const { user_account } = req;
+  let { content, user_account_id } = req.body;
+  return new Comment({ content, user_account_id })
   .save()
   .then(comment => {
     return res.json(comment)
@@ -32,7 +32,7 @@ router.route('/:id')
   const { id } = req.params;
   return new Comment()
   .where({id})
-  .fetch()
+  .fetch({ withRelated: ['parentPosts'] })
   .then(comment => {
     return res.json(comment)
   })
@@ -41,10 +41,17 @@ router.route('/:id')
   })
 })
 .put((req, res) => {
-  const { user_account } = req;
-  let { content } = req.body;
-  return new Comment({ content, user_account_id: user_account.id })
-
+  const { id } = req.params;
+  let { content, user_account_id } = req.body;
+  return new Comment()
+  .where({ id })
+  .save({ content, user_account_id }, { method: 'update' })
+  .then(comment => {
+    return res.json(comment)
+  })
+  .catch(err => {
+    return res.status(500).json(err);
+  });
 })
 .delete((req, res) => {
   const { id } = req.params;

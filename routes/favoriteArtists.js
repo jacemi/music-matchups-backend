@@ -5,8 +5,7 @@ const FavoriteArtist = require('../db/models/FavoriteArtist.js');
 
 router.route('/')
 .get((req, res) => {
-    return new FavoriteArtist
-    .fetchAll()
+    return FavoriteArtist.fetchAll()
     .then(favoriteArtist => {
       return res.json(favoriteArtist)
     })
@@ -15,9 +14,10 @@ router.route('/')
     });
 })
 .post((req, res) => {
-  const { user_account } = req;
-  let { content } = req.body;
-  return new FavoriteArtist({ content, user_account_id: user_account.id })
+  console.log('POST IN FAV ARTISTS');
+  // const { user_account } = req;
+  let { name, similar_artists, mbid, user_account_id } = req.body;
+  return new FavoriteArtist({ name, similar_artists, mbid, user_account_id })
   .save()
   .then(favoriteArtist => {
     return res.json(favoriteArtist)
@@ -41,10 +41,18 @@ router.route('/:id')
   })
 })
 .put((req, res) => {
-  const { user_account } = req;
-  let { content } = req.body;
-  return new FavoriteArtist({ content, user_account_id: user_account.id })
-
+  // const { user_account } = req;
+  const { id } = req.params;
+  let { name, similar_artists, mbid, user_account_id } = req.body;
+  return new FavoriteArtist()
+  .where({ id })
+  .save({ name, similar_artists, mbid, user_account_id }, { method: 'update' })
+  .then(favoriteArtist => {
+    return res.json(favoriteArtist)
+  })
+  .catch(err => {
+    return res.status(500).json(err);
+  });
 })
 .delete((req, res) => {
   const { id } = req.params;
