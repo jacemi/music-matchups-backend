@@ -4,6 +4,7 @@ const posts = require('./posts');
 const comments = require('./comments');
 const favoriteArtists = require('./favoriteArtists');
 const favoriteTags = require('./favoriteTags');
+const User = require('../db/models/User.js');
 
 const router = express.Router();
 
@@ -13,21 +14,16 @@ router.use('/comments', comments);
 router.use('/favoriteArtists', favoriteArtists);
 router.use('/favoriteTags', favoriteTags); 
 
-// router.route('/').get((req, res) => {
-//     return Gallery.fetchAll({ withRelated: ['poster'] })
-//       .then(gallery => {
-//         if (gallery === null) throw new Error('Something up');
-//         gallery = gallery.toJSON();
-//         return res.render('index', { gallery })
-//       })
-//       .catch(err => {
-//         return res.json(err);
-//       });
-//   });
+router.route('/').get((req, res) => {
+res.send('smoke test')
+  });
 
 router.route('/register')
-    .post((req, res) => {
-      return new User({ username: req.body.username, email: req.body.email, password: req.body.password, first_name: req.body.first_name, last_name: req.body.last_name, location: req.body.location, age: req.body.age })
+.post((req, res) => {
+  console.log('ARE YOU HERE?!')
+  console.log('THISSSS ISSS REQQQQQQ', req.body); 
+  let { username, email, password, first_name, last_name, location, age } = req.body;
+      return new User({ username, email, password, first_name, last_name, location, age })
       .save()
       .then(user => {
         return res.json(user)

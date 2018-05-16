@@ -3,7 +3,7 @@ const bookshelf = require('./bookshelf');
 
 class FavoriteTag extends bookshelf.Model {
   get tableName() { return 'favorite_tag' }
-  get hasTimestamps() { return true }
+//   get hasTimestamps() { return true }
 
 
   favoriter() {
@@ -11,4 +11,4 @@ class FavoriteTag extends bookshelf.Model {
   }
 }
 
-module.exports = bookshelf.model('FavoriteArtist', FavoriteArtist);
+module.exports = bookshelf.model('FavoriteTag', FavoriteTag);

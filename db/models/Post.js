@@ -3,7 +3,7 @@ const bookshelf = require('./bookshelf');
 
 class Post extends bookshelf.Model {
   get tableName() { return 'post' }
-  get hasTimestamps() { return true }
+  // get hasTimestamps() { return true }
 
 
   poster() {
