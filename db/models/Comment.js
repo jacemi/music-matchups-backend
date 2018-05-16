@@ -1,20 +1,20 @@
 const bookshelf = require('./bookshelf');
 
 
-class Post extends bookshelf.Model {
-  get tableName() { return 'post' }
+class Comment extends bookshelf.Model {
+  get tableName() { return 'comment' }
   get hasTimestamps() { return true }
 
 
-  poster() {
+  commenter() {
     return this.belongsTo('User', 'user_account_id')
   }
   // postStatus() {
   //   return this.belongsTo('Status', 'status');
   // }
-  // parentThread() {
-  //   return this.belongsTo('Thread', 'thread_id')
-  // }
+  parentPost() {
+    return this.belongsTo('Post', 'post_id')
+  }
 }
 
-module.exports = bookshelf.model('Post', Post);
+module.exports = bookshelf.model('Comment', Comment);
