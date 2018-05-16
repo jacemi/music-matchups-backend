@@ -9,6 +9,9 @@ class Post extends bookshelf.Model {
   poster() {
     return this.belongsTo('User', 'user_account_id')
   }
+  childComments() {
+    return this.hasMany('Comment', 'post_id')
+  };
   // postStatus() {
   //   return this.belongsTo('Status', 'status');
   // }
