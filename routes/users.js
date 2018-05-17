@@ -61,4 +61,9 @@ router.route('/:id')
 //     });
 // })
 
+router.route('/artistMatches')
+.get((req, res) => {
+  
+})
+
 module.exports = router;
