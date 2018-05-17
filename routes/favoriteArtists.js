@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const request = require('request');
 
 const FavoriteArtist = require('../db/models/FavoriteArtist.js');
 
@@ -14,10 +15,28 @@ router.route('/')
     });
 })
 .post((req, res) => {
-  console.log('POST IN FAV ARTISTS');
-  // const { user_account } = req;
   let { name, similar_artists, mbid, user_account_id } = req.body;
-  return new FavoriteArtist({ name, similar_artists, mbid, user_account_id })
+
+
+function getSimilarArtists(){
+  return new Promise((resolve, reject) => {
+    request(`http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=${name}&api_key=728be169b3cbb61c15ea35bdfc79e517&format=json&limit=10`, function(error, response, body){
+      console.log('error:', error);
+      console.log('statusCode:', response && response.statusCode);
+      console.log('body:', body);
+    })
+  })
+}
+
+
+
+
+
+
+
+
+  // const { user_account } = req;
+  return new FavoriteArtist({ name, similar_artists, mbid, user_account_id }, result)
   .save()
   .then(favoriteArtist => {
     return res.json(favoriteArtist)
