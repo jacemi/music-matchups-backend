@@ -16,9 +16,7 @@ router.route('/')
 })
 .post((req, res) => {
   let { name, similar_artists, mbid, user_account_id } = req.body;
-
-
-function getSimilarArtists(){
+function similarArtists(){
   return new Promise((resolve, reject) => {
     request(`http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=${name}&api_key=728be169b3cbb61c15ea35bdfc79e517&format=json&limit=10`, function(error, response, body){
       console.log('error:', error);
@@ -27,23 +25,25 @@ function getSimilarArtists(){
     })
   })
 }
-
-
-
-
-
-
+const getSimilarArtists = similarArtists();
+getSimilarArtists
+.then(data => {
+  console.log('DATA IN GETSIMILARARTISTS', data);
+})
+.catch(err => {
+  console.log('ERROR IN GETSIMILARARTISTS', err);
+})
 
 
   // const { user_account } = req;
-  return new FavoriteArtist({ name, similar_artists, mbid, user_account_id }, result)
-  .save()
-  .then(favoriteArtist => {
-    return res.json(favoriteArtist)
-  })
-  .catch(err => {
-    return res.status(500).json({ message: err.message });
-  });
+  // return new FavoriteArtist({ name, similar_artists, mbid, user_account_id }, result)
+  // .save()
+  // .then(favoriteArtist => {
+  //   return res.json(favoriteArtist)
+  // })
+  // .catch(err => {
+  //   return res.status(500).json({ message: err.message });
+  // });
 });
 
 router.route('/:id')
