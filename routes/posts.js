@@ -6,7 +6,7 @@ const Post = require('../db/models/Post.js');
 router.route('/')
 .get((req, res) => {
     return Post
-    .fetchAll({ withRelated: ['childComments'] })
+    .fetchAll({ withRelated: ['poster', 'childComments'] })
     .then(post => {
       return res.json(post)
     })
@@ -32,7 +32,7 @@ router.route('/:id')
   const { id } = req.params;
   return new Post()
   .where({id})
-  .fetch({ withRelated: ['childComments'] })
+  .fetch({ withRelated: ['poster', 'childComments'] })
   .then(post => {
     return res.json(post)
   })

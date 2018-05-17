@@ -16,8 +16,8 @@ router.route('/')
 })
 .post((req, res) => {
   // const { user_account } = req;
-  let { content, user_account_id } = req.body;
-  return new Comment({ content, user_account_id })
+  let { content, user_account_id, post_id } = req.body;
+  return new Comment({ content, user_account_id, post_id })
   .save()
   .then(comment => {
     return res.json(comment)
@@ -32,7 +32,7 @@ router.route('/:id')
   const { id } = req.params;
   return new Comment()
   .where({id})
-  .fetch({ withRelated: ['parentPosts'] })
+  .fetch({ withRelated: ['parentPost', 'commenter'] })
   .then(comment => {
     return res.json(comment)
   })
@@ -42,10 +42,10 @@ router.route('/:id')
 })
 .put((req, res) => {
   const { id } = req.params;
-  let { content, user_account_id } = req.body;
+  let { content, user_account_id, post_id } = req.body;
   return new Comment()
   .where({ id })
-  .save({ content, user_account_id }, { method: 'update' })
+  .save({ content, user_account_id, post_id }, { method: 'update' })
   .then(comment => {
     return res.json(comment)
   })
