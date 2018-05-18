@@ -89,7 +89,6 @@ passport.serializeUser((user, done) => {
   .post((req, res) => {
     bcrypt.genSalt(saltedRounds, function (err, salt) {
       if (err) console.log(err);
-
       bcrypt.hash(req.body.password, salt, function (err, hash) {
         if (err) console.log(err);
         const { email, username, first_name, last_name, location, age } = req.body;
@@ -118,8 +117,7 @@ app.route('/login')
 
 app.route('/logout')
 .get((req, res) => {
-  req.logout();
-  return res.redirect('/');
+  return req.logout();
 });
 
 

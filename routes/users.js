@@ -4,7 +4,7 @@ const router = express.Router();
 const User = require('../db/models/User.js');
 
 router.route('/')
-.get((req, res) => {
+.get(isAuthenticated, (req, res) => {
   console.log('GET IN USERS ROUTE');
     return User
     .fetchAll({ withRelated: ['posts', 'comments','favoriteArtists'] })
@@ -31,7 +31,7 @@ router.route('/')
 // });
 
 router.route('/:id')
-.get((req, res) => {
+.get(isAuthenticated, (req, res) => {
   const { id } = req.params;
   return new User()
   .where({id})
@@ -65,5 +65,35 @@ router.route('/artistMatches')
 .get((req, res) => {
   
 })
+
+
+function isAuthenticated(req, res, next) {
+  console.log(req.isAuthenticated());
+  if (!req.isAuthenticated()) return res.redirect('/');
+  return next();
+};
+
+// function isAuthorized(req, res, next) {
+//   if (!req.isAuthenticated()) return res.redirect('/login');
+
+//   const { user } = req;
+//   const { id } = req.params;
+
+//   return new User()
+//     .where({ id })
+//     .fetch()
+//     .then(user => {
+//       if (user === null) return res.status(404);
+//       user = user.toJSON();
+//       if (user.id !== gallery.user_id) return res.status(401);
+//       return next();
+//     })
+//     .catch(err => {
+//       console.log(err);
+//       return next();
+//     });
+// }
+
+
 
 module.exports = router;
