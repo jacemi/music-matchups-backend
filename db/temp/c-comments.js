@@ -1,5 +1,5 @@
 const faker = require('faker');
-const COUNT = 50;
+const COUNT = 60;
 
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
@@ -10,8 +10,8 @@ exports.seed = function(knex, Promise) {
         const comment = {};
         comment.content = faker.lorem.paragraph();
         comment.created_at = faker.date.past(2);
-        comment.user_account_id = 1;
-        comment.post_id = 50;
+        comment.user_account_id = faker.random.number({ min: 1, max: 20});
+        comment.post_id = faker.random.number({ min: 120, max: 160});
         comments.push(comment);
       }
       return knex('comment').insert(comments);
