@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const apiKey = process.env.apiKey;
 const FavoriteTag = require('../db/models/FavoriteTag.js');
 
 router.route('/')
@@ -17,8 +17,27 @@ router.route('/')
 .post((req, res) => {
   // const { user_account } = req;
   let { name, similar_tags, user_account_id } = req.body;
-  return new FavoriteTag({ name, similar_tags, user_account_id })
-  .save()
+  let similarTagRequestURL = `http://ws.audioscrobbler.com/2.0/?method=tag.getsimilar&tag=${name}&api_key=${apiKey}&format=json&limit=10`;
+
+  function getSimilarTags(url) {
+    return new Promise((resolve, reject) => {
+      request(url, function (error, response, body) {
+        if (error) {
+          console.log('youve got an error dude')
+          return reject(error);
+        } else {
+          console.log('you made it to response')
+          return resolve(response);
+        }
+      })
+    })
+  }
+  return getSimilarTags(similarTagRequestURL)
+  .then(data => {
+    let similar_tags = data.body;
+    return new FavoriteTag({ name, similar_tags, user_account_id })
+    .save();
+  })
   .then(favoriteTag => {
     return res.json(favoriteTag)
   })
