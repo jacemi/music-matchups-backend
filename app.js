@@ -101,19 +101,36 @@ passport.serializeUser((user, done) => {
           })
           .catch(err => {
             // console.log(err);
-            return res.send('Wrong username');
+            return res.json({ message: err.message });
           });
       });
     });
   });
 
-app.route('/login')
+// app.route('/login')
+  // .post(passport.authenticate('local', {
+  //     successRedirect: '/',
+  //     failureRedirect: '/login'
+  //   })
+  // );
+  app.route('/login')
   .post(
     passport.authenticate('local', {
       successRedirect: '/',
       failureRedirect: '/login'
     })
   );
+//   .post((req, res) => {
+//     console.log('sooo...... are we logged in or what?');
+//     return res.json('login success');
+
+//   } 
+//   passport.authenticate('local', { 
+//     failureRedirect: '/login' 
+// }),
+//   function(req, res) {
+//   });
+
 
 app.route('/logout')
 .get((req, res) => {
