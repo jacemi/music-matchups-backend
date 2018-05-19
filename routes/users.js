@@ -5,8 +5,6 @@ const User = require('../db/models/User.js');
 
 router.route('/')
   .get((req, res) => {
-    console.log('GET IN USERS ROUTE');
-    console.log('THIS IS REQ PARAMS', req.user);
     // const { id } = req.user;
     const id = 1;
     //   console.log('id', id);
@@ -24,29 +22,30 @@ router.route('/')
       .fetch({ withRelated: ['favoriteArtists'] })
       .then(user => {
 
-        console.log('GET USER', user);
-        console.log('get artists', user.relations.favoriteArtists.models[0].attributes.id)
-
         let usersArtistsArray = user.relations.favoriteArtists.models;
-
-        console.log('length of arr', usersArtistsArray.length);
 
         let arrayOfFavArtistIds = [];
         for (let i = 0; i < usersArtistsArray.length; i++) {
           arrayOfFavArtistIds.push(usersArtistsArray[i].attributes.id)
         }
-
-        console.log('array of fav ids', arrayOfFavArtistIds);
-
         return User.query(function (qb) {
-          qb.distinct('user_account_id').from('favorite_artist_user_account').whereIn('favorite_artist_id', [1 , 2])
+          qb.distinct('user_account_id').from('favorite_artist_user_account').whereIn('favorite_artist_id', [1, 2])
         }).fetchAll()
       })
-          .then(match => {
-            console.log('this is match', match.models);
-            return 
-          })
-      
+      .then(match => {
+        let arrayOfUserIds = [];
+        for (let i = 0; i < match.models.length; i++) {
+          arrayOfUserIds.push(match.models[i].attributes.user_account_id);
+        }
+        return User.query(function (qb) {
+          qb.from('user_account').whereIn('id', arrayOfUserIds)
+        })
+          .fetchAll({ withRelated: ['posts', 'comments', 'favoriteArtists'] })
+      })
+      .then(user => {
+        res.json(user);
+      })
+
 
 
       // let currentUser= new User()
@@ -136,7 +135,8 @@ router.route('/:id')
 
 router.route('/profile')
   .get(isAuthenticated, (req, res) => {
-    const { id } = req.user;
+    // const { id } = req.user;
+
     return new User()
       .where({ id })
       .fetch({ withRelated: ['posts', 'comments', 'favoriteArtists'] })
