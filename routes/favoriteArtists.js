@@ -20,7 +20,7 @@ function getSimilarArtists(url) {
 }
 
 router.route('/')
-  .get(isAuthenticated, (req, res) => {
+  .get((req, res) => {
     return FavoriteArtist
       .fetchAll()
       .then(favoriteArtist => {
@@ -30,7 +30,7 @@ router.route('/')
         return res.json(err);
       });
   })
-  .post(isAuthenticated, (req, res) => {
+  .post((req, res) => {
     let { name, similar_artists, mbid, user_account_id } = req.body;
     let similarArtistRequestURL = `http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=${name}&api_key=${apiKey}&format=json&limit=10`;
 
@@ -50,19 +50,26 @@ router.route('/')
   });
 
 router.route('/:id')
-  .get(isAuthenticated, (req, res) => {
+  .get((req, res) => {
     const { id } = req.params;
     return new FavoriteArtist()
       .where({ id })
       .fetch()
       .then(favoriteArtist => {
+        let artistArray = favoriteArtist.attributes.similar_artists.similarartists.artist;
+        console.log('ARTIST ARRAY', artistArray); 
+       for(let i = 0; i < artistArray.length; i++){
+         console.log('for loop', artistArray[i].name);
+       }
+        console.log(favoriteArtist.attributes);
+        console.log('how many layers???', favoriteArtist.attributes.similar_artists);
         return res.json(favoriteArtist)
       })
       .catch(err => {
         return res.status(500).json({ message: err.message });
       })
   })
-  .put(isAuthorized, (req, res) => {
+  .put((req, res) => {
     // const { user_account } = req;
     const { id } = req.params;
     let { name, similar_artists, mbid, user_account_id } = req.body;

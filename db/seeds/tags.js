@@ -21,7 +21,6 @@ exports.seed = function(knex, Promise) {
           'Motown'
         ]);
         favoriteTag.created_at = faker.date.past(2);
-        favoriteTag.user_account_id = faker.random.number({ min: 1, max: 20});
         favoriteTags.push(favoriteTag);
       }
       return knex('favorite_tag').insert(favoriteTags);

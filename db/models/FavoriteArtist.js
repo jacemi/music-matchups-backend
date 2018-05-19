@@ -7,7 +7,7 @@ class FavoriteArtist extends bookshelf.Model {
 
 
   favoriter() {
-    return this.belongsTo('User', 'user_account_id')
+    return this.belongsToMany('User')
   }
 }
 

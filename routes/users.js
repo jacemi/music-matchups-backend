@@ -4,17 +4,79 @@ const router = express.Router();
 const User = require('../db/models/User.js');
 
 router.route('/')
-.get(isAuthenticated, (req, res) => {
+.get((req, res) => {
   console.log('GET IN USERS ROUTE');
-    return User
-    .fetchAll({ withRelated: ['posts', 'comments','favoriteArtists'] })
-    .then(user => {
-      return res.json(user)
+  console.log('THIS IS REQ PARAMS', req.user); 
+  // const { id } = req.user;
+  const id = 22;
+//   console.log('id', id);
+//     return User
+//     .fetchAll({ withRelated: ['posts', 'comments','favoriteArtists'] })
+//     .then(user => {
+//       return res.json(user)
+//     })
+    // .catch(err => {
+    //   return res.json(err);
+    // });
+// })
+let currentUser= new User()
+      .where({ id })
+      .fetch({ withRelated: ['favoriteArtists'] })
+      .then(user => {
+        return user;
+      })
+    let otherUsers = User.query(function (qb) {
+      qb.where('id', '!=', id);
+    }).fetchAll({ withRelated: ['favoriteArtists'] })
+      .then(user => {
+        return user;
+      });
+      Promise.all([currentUser, otherUsers])
+      .then(user => {
+        console.log('PROMISE USER');
+        currentUser = user[0];
+        otherUsers = user[1];
+        const currentUserArtists = currentUser.relations.favoriteArtists.models;
+        console.log(currentUserArtists);
+        const similarArtistArray = favoriteArtist.attributes.similar_artists.similarartists.artist;
+        console.log(similarArtistArray);
+        for(let i = 0; i < currentUserArtists.length; i++){
+          console.log('each artist attributes', currentUserArtists[i].attributes);
+          console.log('each artist name', currentUserArtists[i].attributes.name);
+          for(let z = 0; z < favoriteArtist.attributes.similar_artists.similarartists.artist.length; z++){
+            console.log("each artist similar", favoriteArtist.attributes.similar_artists.similarartists.artist[z].name);
+            
+          }
+        }
+        // console.log('currentUser', currentUser.relations.favoriteArtists);
+        // for(let i = 0; i < otherUsers.length)
+        // console.log('otherUsers', otherUsers);
+
+        
+
+      })
+      .catch(err => {
+        return res.json(err);
+      })
+
     })
-    .catch(err => {
-      return res.json(err);
-    });
-})
+
+
+
+// .get(isAuthenticated,(req, res) => {
+//     return User
+//     .fetchAll({ withRelated: ['posts', 'comments','favoriteArtists'] })
+//     .then(user => {
+//       return res.json(user)
+//     })
+//     .catch(err => {
+//       return res.json(err);
+//     });
+// })
+
+
+
+
 
 
 // .post((req, res) => {
@@ -31,8 +93,23 @@ router.route('/')
 // });
 
 router.route('/:id')
-.get(isAuthenticated, (req, res) => {
+.get((req, res) => {
   const { id } = req.params;
+  return new User()
+  .where({id})
+  .fetch({ withRelated: ['posts', 'comments', 'favoriteArtists'] })
+  .then(user => {
+    return res.json(user)
+  })
+  .catch(err => {
+    return res.status(500).json({ message: err.message });
+  })
+})
+
+
+router.route('/profile')
+.get(isAuthenticated, (req, res) => {
+  const { id } = req.user;
   return new User()
   .where({id})
   .fetch({ withRelated: ['posts', 'comments', 'favoriteArtists'] })
@@ -73,26 +150,26 @@ function isAuthenticated(req, res, next) {
   return next();
 };
 
-// function isAuthorized(req, res, next) {
-//   if (!req.isAuthenticated()) return res.redirect('/login');
+function isAuthorized(req, res, next) {
+  if (!req.isAuthenticated()) return res.redirect('/login');
 
-//   const { user } = req;
-//   const { id } = req.params;
+  const { user } = req;
+  const { id } = req.params;
 
-//   return new User()
-//     .where({ id })
-//     .fetch()
-//     .then(user => {
-//       if (user === null) return res.status(404);
-//       user = user.toJSON();
-//       if (user.id !== gallery.user_id) return res.status(401);
-//       return next();
-//     })
-//     .catch(err => {
-//       console.log(err);
-//       return next();
-//     });
-// }
+  return new User()
+    .where({ id })
+    .fetch()
+    .then(user => {
+      if (user === null) return res.status(404);
+      user = user.toJSON();
+      if (user.id !== gallery.user_id) return res.status(401);
+      return next();
+    })
+    .catch(err => {
+      console.log(err);
+      return next();
+    });
+}
 
 
 
