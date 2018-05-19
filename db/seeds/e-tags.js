@@ -3,7 +3,7 @@ const COUNT = 50;
 
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
-  return knex('favorite_tag')
+  return knex('favorite_tag').del()
     .then(function () {
       const favoriteTags = [];
       for (let index = 0; index < COUNT; index++) {

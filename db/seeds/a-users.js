@@ -3,7 +3,7 @@ const COUNT = 20;
 
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
-  return knex('user_account')
+  return knex('user_account').del()
     .then(function () {
       const users = [];
       for (let index = 0; index < COUNT; index++) {

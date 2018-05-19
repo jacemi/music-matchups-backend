@@ -24,6 +24,9 @@ class User extends bookshelf.Model {
     //   return this.hasOne('Status', 'user_status')
     // }
   }
-  
+
+
+
+
   module.exports = bookshelf.model('User', User);
   
