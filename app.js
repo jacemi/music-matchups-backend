@@ -40,21 +40,21 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user, done) => {
   console.log('deserializing');
   new User({ id: user.id })
-  .fetch()
-  .then(user => {
-    if (user === null) {
-      return done(null, false, { message: 'no user' });
-    }
-    user = user.toJSON();
-    return done(null, {
-      id: user.id,
-      email: user.email
+    .fetch()
+    .then(user => {
+      if (user === null) {
+        return done(null, false, { message: 'no user' });
+      }
+      user = user.toJSON();
+      return done(null, {
+        id: user.id,
+        email: user.email
+      });
+    })
+    .catch(err => {
+      // console.log(err);
+      return done(err);
     });
-  })
-  .catch(err => {
-    // console.log(err);
-    return done(err);
-  });
 });
 
 passport.use(
@@ -64,107 +64,75 @@ passport.use(
     done
   ) {
     return new User({ email })
-    .fetch()
-    .then(user => {
-      if (user === null) {
-        return done(null, false, { message: 'bad email or password' });
-      }
-      user = user.toJSON();
-      bcrypt.compare(password, user.password).then(res => {
-        if (res) {
-          return done(null, user);
-        } else {
-          return done(null, false, { message: 'bad username or password' });
+      .fetch()
+      .then(user => {
+        if (user === null) {
+          return done(null, false, { message: 'bad email or password' });
         }
+        user = user.toJSON();
+        bcrypt.compare(password, user.password).then(res => {
+          if (res) {
+            return done(null, user);
+          } else {
+            return done(null, false, { message: 'bad username or password' });
+          }
+        });
+      })
+      .catch(err => {
+        // console.log('error: ', err);
+        return done(err);
       });
-    })
-    .catch(err => {
-      // console.log('error: ', err);
-      return done(err);
-    });
   })
 );
 
 app.route('/api/register')
-.post((req, res) => {
-  console.log('REGISTER REQQQQQQQQQQ', req.body); 
-  bcrypt.genSalt(saltedRounds, function (err, salt) {
-    if (err) console.log(err);
-    bcrypt.hash(req.body.password, salt, function (err, hash) {
+  .post((req, res) => {
+    bcrypt.genSalt(saltedRounds, function (err, salt) {
       if (err) console.log(err);
-      const { email, username, first_name, last_name, location, age } = req.body;
-      
-      new User({ email, username, password: hash, first_name, last_name, location, age })
-      .save()
-      .then(user => {
-        // console.log(user);
-        return res.json(user);
-      })
-      .catch(err => {
-        // console.log(err);
-        return res.json({ message: err.message });
+      bcrypt.hash(req.body.password, salt, function (err, hash) {
+        if (err) console.log(err);
+        const { email, username, first_name, last_name, location, age } = req.body;
+
+        new User({ email, username, password: hash, first_name, last_name, location, age })
+          .save()
+          .then(user => {
+            // console.log(user);
+            return res.json(user);
+          })
+          .catch(err => {
+            // console.log(err);
+            return res.json({ message: err.message });
+          });
       });
     });
   });
+app.route('/api/login')
+  .post(
+    passport.authenticate('local'),
+    (req, res) => {
+      console.log('CLIENT', req.user);
+      console.log(req.user.username + ' logged in');
+      return res.json({
+        id: req.user.id,
+        loggedIn: true
+      })
+    });
+
+
+app.route('/api/logout')
+  .get((req, res) => {
+    req.logout();
+    return res.json({
+      id: req.user.id,
+      loggedIn: false
+    });
+  });
+
+
+app.use('/api', routes);
+
+app.route('*').get((req, res) => {
+  return res.redirect('/api');
 });
 
-// app.route('/login')
-// .post(passport.authenticate('local', {
-  //     successRedirect: '/',
-  //     failureRedirect: '/login'
-  //   })
-  // );
-  // app.route('/login')
-  // .post(
-    //   passport.authenticate('local', {
-      //    failureFlash: 
-      //   })
-      // );
-      
-      // app.post('/login',
-      //   passport.authenticate('local', {
-        //     successRedirect: '/',
-        //     failureRedirect: '/login',
-        //     failureFlash: true
-        //   })
-        app.route('/api/login')
-        .post(
-          passport.authenticate('local'),
-          (req, res) => {
-            console.log('CLIENT', req.user);
-            console.log(req.user.username + ' logged in');
-            return res.json({
-              id: req.user.id,
-              loggedIn: true
-            })
-          });
-          //   .post((req, res) => {
-            //     console.log('sooo...... are we logged in or what?');
-            //     return res.json('login success');
-            
-            //   } 
-            //   passport.authenticate('local', { 
-              //     failureRedirect: '/login' 
-              // }),
-              //   function(req, res) {
-                //   });
-                
-                
-                app.route('/api/logout')
-                .get((req, res) => {
-                  req.logout();
-                  return res.json({
-                    id: req.user.id,
-                    loggedIn: false
-                  });
-                });
-                
-                
-                app.use('/api', routes);
-                
-                app.route('*').get((req, res) => {
-                  return res.redirect('/api');
-                });
-                
-                module.exports = app;
-                
+module.exports = app;

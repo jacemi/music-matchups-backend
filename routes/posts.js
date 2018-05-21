@@ -4,68 +4,66 @@ const router = express.Router();
 const Post = require('../db/models/Post.js');
 
 router.route('/')
-.get(isAuthenticated, (req, res) => {
+  .get(isAuthenticated, (req, res) => {
     return Post
-    .fetchAll({ withRelated: ['poster', 'childComments'] })
-    .then(post => {
-      return res.json(post)
-    })
-    .catch(err => {
-      return res.json(err);
-    });
-})
-.post(isAuthenticated, (req, res) => {
-  console.log('on course');
-  const user_account_id = req.user.id;
-  const content = req.body.content; 
-  return new Post({ content, user_account_id })
-  .save()
-  .then(post => {
-    console.log('successful post');
-    return res.json(post)
+      .fetchAll({ withRelated: ['poster', 'childComments'] })
+      .then(post => {
+        return res.json(post)
+      })
+      .catch(err => {
+        return res.json(err);
+      });
   })
-  .catch(err => {
-    return res.status(500).json({ message: err.message });
+  .post(isAuthenticated, (req, res) => {
+    const user_account_id = req.user.id;
+    const content = req.body.content;
+    return new Post({ content, user_account_id })
+      .save()
+      .then(post => {
+        return res.json(post)
+      })
+      .catch(err => {
+        return res.status(500).json({ message: err.message });
+      });
   });
-});
 
 router.route('/:id')
-.get(isAuthenticated, (req, res) => {
-  const { id } = req.params;
-  return new Post()
-  .where({id})
-  .fetch({ withRelated: ['poster', 'childComments'] })
-  .then(post => {
-    return res.json(post)
+  .get(isAuthenticated, (req, res) => {
+    const { id } = req.params;
+    return new Post()
+      .where({ id })
+      .fetch({ withRelated: ['poster', 'childComments'] })
+      .then(post => {
+        return res.json(post)
+      })
+      .catch(err => {
+        return res.status(500).json({ message: err.message });
+      })
   })
-  .catch(err => {
-    return res.status(500).json({ message: err.message });
+  .put(isAuthorized, (req, res) => {
+    const { id } = req.params;
+    let { content, user_account_id } = req.body;
+    return new Post()
+      .where({ id })
+      .save({ content, user_account_id }, { method: 'update' })
+      .then(post => {
+        return res.json(post)
+      })
+      .catch(err => {
+        return res.status(500).json(err);
+      });
   })
-})
-.put(isAuthorized, (req, res) => {
-  const { id } = req.params;
-  let { content, user_account_id } = req.body;
-  return new Post()
-  .where({ id })
-  .save({ content, user_account_id }, { method: 'update' })
-  .then(post => {
-    return res.json(post)
+  .delete(isAuthorized, (req, res) => {
+    const { id } = req.params;
+    return new Post({ id })
+      .destroy()
+      .then(post => {
+        return res.json(post);
+      })
+      .catch(err => {
+        return res.status(500).json(err);
+      });
   })
-  .catch(err => {
-    return res.status(500).json(err);
-  });
-})
-.delete(isAuthorized, (req, res) => {
-  const { id } = req.params;
-  return new Post({ id })
-    .destroy()
-    .then(post => {
-      return res.json(post);
-    })
-    .catch(err => {
-      return res.status(500).json(err);
-    });
-})
 
 
 function isAuthenticated(req, res, next) {

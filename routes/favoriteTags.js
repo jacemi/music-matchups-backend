@@ -23,10 +23,10 @@ router.route('/')
     return new Promise((resolve, reject) => {
       request(url, function (error, response, body) {
         if (error) {
-          console.log('youve got an error dude')
+    
           return reject(error);
         } else {
-          console.log('you made it to response')
+
           return resolve(response);
         }
       })
