@@ -4,7 +4,7 @@ const router = express.Router();
 const User = require('../db/models/User.js');
 
 router.route('/')
-  .get((req, res) => {
+  .get(isAuthenticated, (req, res) => {
       console.log(req);
       return User
       .fetchAll({ withRelated: ['posts', 'comments','favoriteArtists'] })
@@ -56,7 +56,7 @@ router.route('/match')
     .where({ id })
     .fetch({ withRelated: ['favoriteArtists'] })
     .then(user => {
-
+        console.log('user sucks', user);
       let usersArtistsArray = user.relations.favoriteArtists.models;
 
       let arrayOfFavArtistIds = [];
@@ -64,10 +64,11 @@ router.route('/match')
         arrayOfFavArtistIds.push(usersArtistsArray[i].attributes.id)
       }
       return User.query(function (qb) {
-        qb.distinct('user_account_id').from('favorite_artist_user_account').whereIn('favorite_artist_id', [1, 2])
+        qb.distinct('user_account_id').from('favorite_artist_user_account').whereIn('favorite_artist_id', arrayOfFavArtistIds)
       }).fetchAll()
     })
     .then(match => {
+    
       let arrayOfUserIds = [];
       for (let i = 0; i < match.models.length; i++) {
         arrayOfUserIds.push(match.models[i].attributes.user_account_id);
@@ -103,7 +104,7 @@ router.route('/match')
     //   });
     // });
     router.route('/profile')
-      .get((req, res) => {
+      .get(isAuthenticated, (req, res) => {
         const { id } = req.user;
         return new User()
           .where({ id })
@@ -130,7 +131,7 @@ router.route('/match')
       // })
 
 router.route('/:id')
-  .get((req, res) => {
+  .get(isAuthenticated, (req, res) => {
     const { id } = req.params;
     console.log('WHAT IS ID??', req);
     return new User()

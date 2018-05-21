@@ -30,40 +30,28 @@ router.route('/')
         return res.json(err);
       });
   })
-  .post((req, res) => {
-    console.log('on way to post artist');
+  .post(isAuthenticated, (req, res) => {
     // const userId = req.user.id; 
-    const user_account_id = 21;
+    const user_account_id = req.user.id;
     const name = req.body.name.toLowerCase().trim();
-    console.log('name', name);
     return new FavoriteArtist()
     .where({ name })
     .fetch()
     .then(favoriteArtist => {
       if (favoriteArtist !== null){
-        console.log('not null', favoriteArtist);
         favoriteArtist.favoriter().attach(user_account_id)
         return res.json(favoriteArtist); 
       }else{
-        console.log('IS null', favoriteArtist);
         let similarArtistRequestURL = `http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=${name}&api_key=${apiKey}&format=json&limit=10`;
         return getSimilarArtists(similarArtistRequestURL)
       }
     })
-
-    // let similarArtistRequestURL = `http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=${name}&api_key=${apiKey}&format=json&limit=10`;
-
-    // return getSimilarArtists(similarArtistRequestURL)
       .then(data => {
-        console.log('are were inside of dis ting?');
-        console.log('duh data', data.body);
         let similar_artists = data.body;
-        console.log('we look alike mon', similar_artists);
         return new FavoriteArtist({ name, similar_artists })
           .save()
       })
       .then(favoriteArtist => {
-        console.log('we in da layer 2?', favoriteArtist);
         return favoriteArtist.favoriter().attach(user_account_id)
         // return res.json(favoriteArtist)
       })
@@ -71,7 +59,22 @@ router.route('/')
       .catch(err => {
         return res.status(500).json({ message: err.message });
       });
-  });
+  })
+  .put(isAuthenticated, (req, res) => {
+    const user_account_id = req.user.id;
+    const name = req.body.name.toLowerCase().trim();
+    return new FavoriteArtist()
+    .where({ name })
+    .fetch()
+    .then(favoriteArtist => {
+      favoriteArtist.favoriter().detach(user_account_id)
+      return res.json(favoriteArtist); 
+    })
+    .catch(err => {
+      return res.status(500).json({ message: err.message });
+    });
+  })
+
 
 router.route('/:id')
   .get((req, res) => {
@@ -116,17 +119,17 @@ router.route('/:id')
       return res.status(500).json({ message: err.message });
     });
   })
-  .delete(isAuthorized, (req, res) => {
-    const { id } = req.params;
-    return new FavoriteArtist({ id })
-      .destroy()
-      .then(favoriteArtist => {
-        return res.json(favoriteArtist);
-      })
-      .catch(err => {
-        return res.status(500).json(err);
-      });
-  })
+  // .delete(isAuthorized, (req, res) => {
+  //   const { id } = req.params;
+  //   return new FavoriteArtist({ id })
+  //     .destroy()
+  //     .then(favoriteArtist => {
+  //       return res.json(favoriteArtist);
+  //     })
+  //     .catch(err => {
+  //       return res.status(500).json(err);
+  //     });
+  // })
 
 
   function isAuthenticated(req, res, next) {

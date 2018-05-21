@@ -134,7 +134,8 @@ app.route('/api/register')
             console.log('CLIENT', req.user);
             console.log(req.user.username + ' logged in');
             return res.json({
-              success: true
+              id: req.user.id,
+              loggedIn: true
             })
           });
           //   .post((req, res) => {
@@ -151,7 +152,11 @@ app.route('/api/register')
                 
                 app.route('/api/logout')
                 .get((req, res) => {
-                  return req.logout();
+                  req.logout();
+                  return res.json({
+                    id: req.user.id,
+                    loggedIn: false
+                  });
                 });
                 
                 
