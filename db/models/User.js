@@ -11,11 +11,11 @@ class User extends bookshelf.Model {
     favoriteTags() {
       return this.belongsToMany('FavoriteTag')
     }
+    comments() {
+      return this.hasMany('Comment', 'user_account_id').through('Post')
+    }
     posts() {
       return this.hasMany('Post', 'user_account_id' )
-    }
-    comments() {
-      return this.hasMany('Comment', 'user_account_id')
     }
     // forums() {
     //   return this.hasMany('Forum', 'user_account_id')

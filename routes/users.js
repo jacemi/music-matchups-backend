@@ -5,52 +5,19 @@ const User = require('../db/models/User.js');
 
 router.route('/')
   .get((req, res) => {
-    // const { id } = req.user;
-    const id = 1;
-    //   console.log('id', id);
-    //     return User
-    //     .fetchAll({ withRelated: ['posts', 'comments','favoriteArtists'] })
-    //     .then(user => {
-    //       return res.json(user)
-    //     })
-    // .catch(err => {
-    //   return res.json(err);
-    // });
-    // // })
-    return new User()
-      .where({ id })
-      .fetch({ withRelated: ['favoriteArtists'] })
+      console.log(req);
+      return User
+      .fetchAll({ withRelated: ['posts', 'comments','favoriteArtists'] })
       .then(user => {
-
-        let usersArtistsArray = user.relations.favoriteArtists.models;
-
-        let arrayOfFavArtistIds = [];
-        for (let i = 0; i < usersArtistsArray.length; i++) {
-          arrayOfFavArtistIds.push(usersArtistsArray[i].attributes.id)
-        }
-        return User.query(function (qb) {
-          qb.distinct('user_account_id').from('favorite_artist_user_account').whereIn('favorite_artist_id', [1, 2])
-        }).fetchAll()
+        return res.json(user)
       })
-      .then(match => {
-        let arrayOfUserIds = [];
-        for (let i = 0; i < match.models.length; i++) {
-          arrayOfUserIds.push(match.models[i].attributes.user_account_id);
-        }
-        return User.query(function (qb) {
-          qb.from('user_account').whereIn('id', arrayOfUserIds)
-        })
-          .fetchAll({ withRelated: ['posts', 'comments', 'favoriteArtists'] })
-      })
-      .then(user => {
-        res.json(user);
-      })
-
-
-
-      // let currentUser= new User()
-      //       .where({ id })
-      //       .fetch({ withRelated: ['favoriteArtists'] })
+      .catch(err => {
+        return res.json(err);
+      });
+  })
+  // let currentUser= new User()
+  //       .where({ id })
+  //       .fetch({ withRelated: ['favoriteArtists'] })
       //       .then(user => {
       //         return user;
       //       })
@@ -80,25 +47,44 @@ router.route('/')
       // console.log('currentUser', currentUser.relations.favoriteArtists);
       // for(let i = 0; i < otherUsers.length)
       // console.log('otherUsers', otherUsers);
-      .catch(err => {
-        return res.json({ message: err.message });
+
+
+router.route('/match')
+.get(isAuthenticated, (req, res) => {
+  const { id } = req.user;
+  return new User()
+    .where({ id })
+    .fetch({ withRelated: ['favoriteArtists'] })
+    .then(user => {
+
+      let usersArtistsArray = user.relations.favoriteArtists.models;
+
+      let arrayOfFavArtistIds = [];
+      for (let i = 0; i < usersArtistsArray.length; i++) {
+        arrayOfFavArtistIds.push(usersArtistsArray[i].attributes.id)
+      }
+      return User.query(function (qb) {
+        qb.distinct('user_account_id').from('favorite_artist_user_account').whereIn('favorite_artist_id', [1, 2])
+      }).fetchAll()
+    })
+    .then(match => {
+      let arrayOfUserIds = [];
+      for (let i = 0; i < match.models.length; i++) {
+        arrayOfUserIds.push(match.models[i].attributes.user_account_id);
+      }
+      return User.query(function (qb) {
+        qb.from('user_account').whereIn('id', arrayOfUserIds)
       })
+        .fetchAll({ withRelated: ['posts', 'comments', 'favoriteArtists'] })
+    })
+    .then(user => {
+      res.json(user);
+    })
+    .catch(err => {
+      return res.json({ message: err.message });
+    })
 
-  })
-
-
-
-// .get(isAuthenticated,(req, res) => {
-//     return User
-//     .fetchAll({ withRelated: ['posts', 'comments','favoriteArtists'] })
-//     .then(user => {
-//       return res.json(user)
-//     })
-//     .catch(err => {
-//       return res.json(err);
-//     });
-// })
-
+})
 
 
 
@@ -110,16 +96,43 @@ router.route('/')
 //   return new Forum({ subject, user_account_id: user_account.id })
 //   .save()
 //   .then(forum => {
-//     return res.json(forum)
-//   })
-//   .catch(err => {
-//     return res.status(500).json({ message: err.message });
-//   });
-// });
+  //     return res.json(forum)
+  //   })
+  //   .catch(err => {
+    //     return res.status(500).json({ message: err.message });
+    //   });
+    // });
+    router.route('/profile')
+      .get((req, res) => {
+        const { id } = req.user;
+        return new User()
+          .where({ id })
+          .fetch({ withRelated: ['posts', 'comments', 'favoriteArtists'] })
+          .then(user => {
+            return res.json(user)
+          })
+          .catch(err => {
+            return res.status(500).json({ message: err.message });
+          })
+      })
+      // .put( (req, res) => {
+      //   const { id } = req.user;
+      //   const { email, username, first_name, last_name, location, age } = req.body;
+      //   return new User()
+      //   .where({ id })
+      //   .save({ email, username, first_name, last_name, location, age }, { method: 'update' })
+      //   .then(post => {
+      //     return res.json(post)
+      //   })
+      //   .catch(err => {
+      //     return res.status(500).json(err);
+      //   });
+      // })
 
 router.route('/:id')
   .get((req, res) => {
     const { id } = req.params;
+    console.log('WHAT IS ID??', req);
     return new User()
       .where({ id })
       .fetch({ withRelated: ['favoriteArtists'] })
@@ -133,20 +146,6 @@ router.route('/:id')
   })
 
 
-router.route('/profile')
-  .get(isAuthenticated, (req, res) => {
-    // const { id } = req.user;
-
-    return new User()
-      .where({ id })
-      .fetch({ withRelated: ['posts', 'comments', 'favoriteArtists'] })
-      .then(user => {
-        return res.json(user)
-      })
-      .catch(err => {
-        return res.status(500).json({ message: err.message });
-      })
-  })
 // .put((req, res) => {
 //   const { user_account } = req;
 //   let { subject } = req.body;

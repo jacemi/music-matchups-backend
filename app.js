@@ -149,7 +149,7 @@ app.route('/api/register')
                 //   });
                 
                 
-                app.route('/logout')
+                app.route('/api/logout')
                 .get((req, res) => {
                   return req.logout();
                 });
