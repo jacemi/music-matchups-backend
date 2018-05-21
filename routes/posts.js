@@ -15,11 +15,13 @@ router.route('/')
     });
 })
 .post(isAuthenticated, (req, res) => {
-  // const { user_account } = req;
-  let { content, user_account_id } = req.body;
+  console.log('on course');
+  const user_account_id = req.user.id;
+  const content = req.body.content; 
   return new Post({ content, user_account_id })
   .save()
   .then(post => {
+    console.log('successful post');
     return res.json(post)
   })
   .catch(err => {

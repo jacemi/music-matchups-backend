@@ -4,6 +4,7 @@ exports.up = function(knex, Promise) {
         table.increments('id');
         table.string('content', 2000).notNullable();
         table.timestamp('created_at').defaultTo(knex.fn.now());
+        table.boolean('deleted').defaultTo(false);
         table.integer('user_account_id').unsigned();
         table.foreign('user_account_id').references('id').inTable('user_account');
         table.integer('post_id').unsigned();
